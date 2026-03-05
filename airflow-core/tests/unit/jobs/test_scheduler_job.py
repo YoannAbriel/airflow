@@ -4869,6 +4869,165 @@ class TestSchedulerJob:
         assert created_run.creating_job_id == scheduler_job.id
 
     @pytest.mark.need_serialized_dag
+    def test_create_dag_runs_asset_triggered_skips_stale_triggered_date(self, session, dag_maker):
+        asset = Asset(uri="test://asset-for-stale-trigger-date", name="asset-for-stale-trigger-date")
+        with dag_maker(dag_id="asset-consumer-stale-trigger-date", schedule=[asset], session=session):
+            pass
+        dag_model = dag_maker.dag_model
+        asset_id = session.scalar(select(AssetModel.id).where(AssetModel.uri == asset.uri))
+
+        queued_at = timezone.utcnow()
+        session.add(AssetDagRunQueue(target_dag_id=dag_model.dag_id, asset_id=asset_id, created_at=queued_at))
+        session.flush()
+
+        # Simulate another scheduler consuming ADRQ rows after we computed triggered_date_by_dag.
+        session.execute(delete(AssetDagRunQueue).where(AssetDagRunQueue.target_dag_id == dag_model.dag_id))
+        session.flush()
+
+        scheduler_job = Job()
+        self.job_runner = SchedulerJobRunner(job=scheduler_job, executors=[self.null_exec])
+        self.job_runner._create_dag_runs_asset_triggered(
+            dag_models=[dag_model],
+            session=session,
+        )
+
+        # We do not create a new DagRun seems the ADRQ has already been consumed
+        assert session.scalars(select(DagRun).where(DagRun.dag_id == dag_model.dag_id)).one_or_none() is None
+
+    @pytest.mark.need_serialized_dag
+    def test_create_dag_runs_asset_triggered_deletes_only_selected_adrq_rows(
+        self, session: Session, dag_maker
+    ):
+        asset_1 = Asset("ready-to-trigger-a-Dag-run")
+        asset_2 = Asset("should-still-exist-after-a-Dag-run-created")
+        with dag_maker(dag_id="asset-consumer-delete-selected", schedule=asset_1 | asset_2, session=session):
+            pass
+        dag_model = dag_maker.dag_model
+        asset_1_id = session.scalar(select(AssetModel.id).where(AssetModel.uri == asset_1.name))
+        asset_2_id = session.scalar(select(AssetModel.id).where(AssetModel.uri == asset_2.name))
+
+        session.add_all(
+            [
+                # The ADRQ that should triggers the Dag run creation
+                AssetDagRunQueue(
+                    asset_id=asset_1_id, target_dag_id=dag_model.dag_id, created_at=timezone.utcnow()
+                ),
+                # The ADRQ that arrives after the Dag run creation but before ADRQ clean up
+                # This situation is simluarted by _lock_only_selected_asset below
+                AssetDagRunQueue(
+                    asset_id=asset_2_id, target_dag_id=dag_model.dag_id, created_at=timezone.utcnow()
+                ),
+            ]
+        )
+        session.flush()
+
+        scheduler_job = Job()
+        self.job_runner = SchedulerJobRunner(job=scheduler_job, executors=[self.null_exec])
+
+        def _lock_only_selected_asset(query, **_):
+            # Simulate SKIP LOCKED behavior where this scheduler can only consume one ADRQ row.
+            return query.where(AssetDagRunQueue.asset_id == asset_1_id)
+
+        with patch("airflow.jobs.scheduler_job_runner.with_row_locks", side_effect=_lock_only_selected_asset):
+            self.job_runner._create_dag_runs_asset_triggered(
+                dag_models=[dag_model],
+                session=session,
+            )
+
+        dr = session.scalars(select(DagRun).where(DagRun.dag_id == dag_model.dag_id)).one_or_none()
+
+        assert dr is not None
+
+        adrq_1 = session.scalars(
+            select(AssetDagRunQueue).where(
+                AssetDagRunQueue.target_dag_id == dag_model.dag_id,
+                AssetDagRunQueue.asset_id == asset_1_id,
+            )
+        ).one_or_none()
+        assert adrq_1 is None
+        adrq_2 = session.scalars(
+            select(AssetDagRunQueue).where(
+                AssetDagRunQueue.target_dag_id == dag_model.dag_id,
+                AssetDagRunQueue.asset_id == asset_2_id,
+            )
+        ).one_or_none()
+        assert adrq_2 is not None
+
+        assert created_run.creating_job_id == scheduler_job.id
+
+    @pytest.mark.need_serialized_dag
+    @conf_vars({("scheduler", "use_job_schedule"): "False"})
+    def test_asset_triggered_dag_runs_created_when_use_job_schedule_false(self, session, dag_maker):
+        """
+        Test that asset-triggered dag runs are still created when use_job_schedule=False.
+
+        use_job_schedule=False should only disable time-based (cron/interval) scheduling,
+        not asset-triggered scheduling.
+        """
+        asset1 = Asset(uri="test://asset-use-job-schedule", name="asset_use_job_schedule", group="test")
+
+        with dag_maker(dag_id="asset-producer", start_date=timezone.utcnow(), session=session):
+            BashOperator(task_id="task", bash_command="echo 1", outlets=[asset1])
+        dr = dag_maker.create_dagrun(
+            run_id="run1",
+            logical_date=(DEFAULT_DATE + timedelta(days=100)),
+            data_interval=(DEFAULT_DATE + timedelta(days=10), DEFAULT_DATE + timedelta(days=11)),
+        )
+
+        asset1_id = session.scalar(select(AssetModel.id).where(AssetModel.uri == asset1.uri))
+
+        event1 = AssetEvent(
+            asset_id=asset1_id,
+            source_task_id="task",
+            source_dag_id=dr.dag_id,
+            source_run_id=dr.run_id,
+            source_map_index=-1,
+        )
+        session.add(event1)
+
+        with dag_maker(dag_id="asset-consumer", schedule=[asset1]):
+            pass
+        consumer_dag = dag_maker.dag
+
+        session.add(AssetDagRunQueue(asset_id=asset1_id, target_dag_id=consumer_dag.dag_id))
+        session.flush()
+
+        scheduler_job = Job()
+        self.job_runner = SchedulerJobRunner(job=scheduler_job, executors=[self.null_exec])
+
+        with create_session() as session:
+            self.job_runner._create_dagruns_for_dags(session, session)
+
+        # Asset-triggered dag run should be created even when use_job_schedule=False
+        created_run = session.scalars(select(DagRun).where(DagRun.dag_id == consumer_dag.dag_id)).one_or_none()
+        assert created_run is not None
+        assert created_run.state == State.QUEUED
+
+    @pytest.mark.need_serialized_dag
+    @conf_vars({("scheduler", "use_job_schedule"): "False"})
+    def test_time_based_dag_runs_not_created_when_use_job_schedule_false(self, session, dag_maker):
+        """
+        Test that time-based dag runs are NOT created when use_job_schedule=False.
+        """
+        with dag_maker(
+            dag_id="time-based-dag",
+            schedule="@daily",
+            start_date=DEFAULT_DATE,
+            session=session,
+        ):
+            BashOperator(task_id="task", bash_command="echo 1")
+
+        scheduler_job = Job()
+        self.job_runner = SchedulerJobRunner(job=scheduler_job, executors=[self.null_exec])
+
+        with create_session() as session:
+            self.job_runner._create_dagruns_for_dags(session, session)
+
+        # Time-based dag run should NOT be created when use_job_schedule=False
+        created_run = session.scalars(select(DagRun).where(DagRun.dag_id == "time-based-dag")).one_or_none()
+        assert created_run is None
+
+    @pytest.mark.need_serialized_dag
     def test_create_dag_runs_asset_alias_with_asset_event_attached(self, session, dag_maker):
         """
         Test Dag Run trigger on AssetAlias includes the corresponding AssetEvent in `consumed_asset_events`.
