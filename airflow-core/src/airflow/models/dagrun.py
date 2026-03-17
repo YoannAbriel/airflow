@@ -1256,8 +1256,6 @@ class DagRun(Base, LoggingMixin):
                 self.data_interval_end,
             )
 
-            self.end_dr_span_if_needed()
-
             if dag.deadline:
                 # The dagrun has reached a terminal state. Prune any pending deadlines
                 # so they don't fire after the run is already finished.
