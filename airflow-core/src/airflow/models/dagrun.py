@@ -1257,16 +1257,11 @@ class DagRun(Base, LoggingMixin):
             )
 
             if dag.deadline:
-                deadline_alerts = [
-                    DeadlineAlertModel.get_by_id(alert_id, session) for alert_id in dag.deadline
-                ]
-
-                has_dagrun_deadlines = any(
-                    deadline_alert.reference_class in SerializedReferenceModels.TYPES.DAGRUN
-                    for deadline_alert in deadline_alerts
-                )
-
-                if has_dagrun_deadlines:
+                if any(
+                    DeadlineAlertModel.get_by_id(alert_id, session).reference_class
+                    in SerializedReferenceModels.TYPES.DAGRUN
+                    for alert_id in dag.deadline
+                ):
                     if self._state == DagRunState.SUCCESS:
                         # Run succeeded before deadline — prune so they don't fire.
                         Deadline.prune_deadlines(session=session, conditions={DagRun.id: self.id})
