@@ -1386,6 +1386,46 @@ class TestDagRun:
         mock_prune.assert_not_called()
         assert dag_run.state == DagRunState.FAILED
 
+    @mock.patch.object(Deadline, "prune_deadlines")
+    @mock.patch.object(DeadlineAlertModel, "get_by_id")
+    def test_dagrun_failure_calls_handle_miss(
+        self, mock_get_by_id, mock_prune, session, deadline_test_dag
+    ):
+        mock_deadline_alert = mock.MagicMock()
+        mock_deadline_alert.reference_class = SerializedReferenceModels.FixedDatetimeDeadline
+        mock_get_by_id.return_value = mock_deadline_alert
+
+        scheduler_dag = deadline_test_dag()
+        scheduler_dag.deadline = ["deadline-uuid-1"]
+
+        dag_run = self.create_dag_run(
+            dag=scheduler_dag,
+            task_states={"task_1": TaskInstanceState.SUCCESS, "task_2": TaskInstanceState.FAILED},
+            session=session,
+        )
+        dag_run.dag = scheduler_dag
+
+        # Intercept the Deadline query to inject a mock pending deadline.
+        mock_deadline = mock.MagicMock(spec=Deadline)
+        orig_scalars = session.scalars
+
+        def patched_scalars(stmt, *args, **kwargs):
+            # If the compiled query references the deadline table, return our mock.
+            try:
+                stmt_str = str(stmt.compile(compile_kwargs={"literal_binds": True}))
+            except Exception:
+                stmt_str = str(stmt)
+            if "deadline" in stmt_str.lower() and "dag_run" in stmt_str.lower():
+                return iter([mock_deadline])
+            return orig_scalars(stmt, *args, **kwargs)
+
+        with mock.patch.object(session, "scalars", side_effect=patched_scalars):
+            dag_run.update_state(session=session)
+
+        assert dag_run.state == DagRunState.FAILED
+        mock_prune.assert_not_called()
+        mock_deadline.handle_miss.assert_called_once_with(session=session)
+
 
 @pytest.mark.parametrize(
     ("run_type", "expected_tis"),
