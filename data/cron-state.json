@@ -1,0 +1,16 @@
+{
+  "history": [
+    {
+      "date": "2026-04-05",
+      "status": "sent",
+      "type": "recovery-run-sunday"
+    },
+    {
+      "date": "2026-04-05",
+      "status": "sent",
+      "type": "thesis-reminder"
+    }
+  ],
+  "last_run_sunday": "2026-04-05T07:30:00Z",
+  "last_thesis_reminder": "2026-04-05T14:00:00Z"
+}

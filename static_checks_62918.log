@@ -1,0 +1,280 @@
+Running hooks for `providers/common/ai`:
+Compile / format / lint HITL Review UI....................................................................Passed
+Compile Common AI provider assets.........................................................................Passed
+
+Running hooks for `providers/common/compat`:
+Check common.compat sdk TYPE_CHECKING matches runtime maps................................................Passed
+
+Running hooks for `providers/edge3`:
+Generate the FastAPI API spec for Edge....................................................................Failed
+- hook id: generate-openapi-spec-edge
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Compile / format / lint edge UI...........................................................................Passed
+Update migration ref doc for Edge3........................................................................Failed
+- hook id: update-migration-references-edge3
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Check that the REVISION_HEADS_MAP is up-to-date...........................................................Passed
+Compile Edge provider assets..............................................................................Passed
+
+Running hooks for `providers/fab`:
+Compile FAB provider assets...............................................................................Passed
+Generate the FastAPI API spec for FAB.....................................................................Failed
+- hook id: generate-openapi-spec-fab
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Update migration ref doc for FAB..........................................................................Failed
+- hook id: update-migration-references-fab
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Check that the REVISION_HEADS_MAP is up-to-date...........................................................Passed
+Prevent deprecated sqlalchemy usage.......................................................................Passed
+
+Running hooks for `providers/keycloak`:
+Generate the FastAPI API spec for Keycloak................................................................Failed
+- hook id: generate-openapi-spec-keycloak
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+
+Running hooks for `airflow-core`:
+Check that TI and TIS have the same attributes............................................................Passed
+Check airflow.kubernetes imports are not used.............................................................Passed
+Check common.compat is used for OL deprecated classes.....................................................Passed
+Check cncf.kubernetes imports used for executors only.....................................................Passed
+Checks setup extra packages...............................................................................Passed
+No providers imports in core example DAGs.................................................................Passed
+Check NEW_SESSION is only used with @provide_session......................................................Passed
+Check BaseOperator and partial() arguments............................................(no files to check)Skipped
+Check @task decorator implements custom_operator_name.....................................................Passed
+Check if tests are in the right folders...................................................................Failed
+- hook id: check-tests-in-the-right-folders
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Lint config_templates/config.yml..........................................................................Passed
+Check deprecations categories in decorators...............................................................Passed
+Create missing init.py files in tests.....................................................................Passed
+Unit tests do not inherit from unittest.TestCase..........................................................Passed
+Check no migration is done on FAB related table...........................................................Passed
+Compile / format / lint UI................................................................................Passed
+Compile / format / lint simple auth manager UI............................................................Passed
+Generate the FastAPI API spec.............................................................................Failed
+- hook id: generate-openapi-spec
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Check i18n files validity.................................................................................Passed
+Update migration ref doc..................................................................................Failed
+- hook id: update-migration-references
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Check the default configuration...........................................................................Failed
+- hook id: check-default-configuration
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+No AIRFLOW_V_* imports in airflow-core....................................................................Passed
+Check for SDK imports in core files.......................................................................Passed
+Check schema defaults match server-side defaults..........................................................Failed
+- hook id: check-schema-defaults
+- exit code: 1
+
+  Traceback (most recent call last):
+    File "/Users/yokoda/clawd/airflow-core/../scripts/ci/prek/check_schema_defaults.py", line 32, in <module>
+      initialize_breeze_prek(__name__, __file__)
+    File "/Users/yokoda/clawd/scripts/ci/prek/common_prek_utils.py", line 199, in initialize_breeze_prek
+      console.print(
+  AttributeError: 'NoneType' object has no attribute 'print'
+
+Running hooks for `airflow-ctl`:
+Generate SVG from Airflow CTL Commands....................................................................Failed
+- hook id: generate-airflowctl-help-images
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Check airflowctl CLI command test coverage................................................................Passed
+
+Running hooks for `airflow-ctl-tests`:
+Check airflowctl CLI command test coverage................................................................Passed
+
+Running hooks for `chart`:
+Add license for all Helm template files...................................................................Passed
+Format JSON files.........................................................................................Passed
+Lint Helm Chart...........................................................................................Failed
+- hook id: lint-helm-chart
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Validate chart annotations................................................................................Passed
+Kubeconform check on our helm chart.......................................................................Failed
+- hook id: kubeconform
+- exit code: 1
+
+  The `breeze` command is not on path.
+
+  Please install breeze.
+  You can use uv with `uv tool install -e ./dev/breeze or `pipx install -e ./dev/breeze`.
+  It will install breeze from Airflow sources (make sure you run `pipx ensurepath` if you use pipx)
+
+  You can also set SKIP_BREEZE_PREK_HOOKS env variable to non-empty value to skip all breeze tests.
+Lint chart/values.schema.json.............................................................................Passed
+Vendor k8s definitions into values.schema.json............................................................Passed
+Lint chart/values.yaml....................................................................................Passed
+Lint chart/values.schema.json file........................................................................Passed
+
+Running hooks for `go-sdk`:
+Print checked files.......................................................................................Passed
+- hook id: identity
+- duration: 0.00s
+
+  pkg/edgeapi/overlay.yml
+  pkg/logging/server/server.go
+  bundle/bundlev1/task_test.go
+  Justfile
+  pkg/worker/runner_test.go
+  pkg/api/mocks/TaskInstancesClient.go
+  pkg/api/models.go
+  pkg/bundles/shared/discovery.go
+  sdk/connection.go
+  sdk/doc.go
+  internal/protov1/plugin_grpc.pb.go
+  .mockery.yml
+  sdk/errors.go
+  sdk/connection_test.go
+  pkg/edgeapi/client.gen.go
+  sdk/client.go
+  edge/commands/root.go
+  bundle/bundlev1/task.go
+  pkg/api/mocks/VariablesClient.go
+  sdk/client_test.go
+  bundle/bundlev1/schemas.go
+  pkg/api/mocks/ConnectionsClient.go
+  bundle/bundlev1/doc.go
+  edge/worker.go
+  pkg/api/oapi-codegen.yml
+  bundle/bundlev1/bundlev1server/impl/plugin.go
+  bundle/bundlev1/bundlev1server/server.go
+  pkg/logging/shclog/shclog.go
+  README.md
+  example/bundle/main.go
+  bundle/bundlev1/registry.go
+  pkg/worker/runner.go
+  pkg/edgeapi/oapi-codegen.yml
+  cmd/airflow-go-edge-worker/main.go
+  pkg/config/config.go
+  pkg/logging/level.go
+  pkg/logging/attrs.go
+  .pre-commit-config.yaml
+  pkg/api/mocks/AssetsClient.go
+  internal/protov1/plugin.proto
+  go.mod
+  bundle/bundlev1/bundlev1client/doc.go
+  bin/.gitignore
+  go.sum
+  pkg/bundles/shared/handshake.go
+  LICENSE
+  pkg/sdkcontext/keys.go
+  pkg/api/client.go
+  internal/protov1/plugin.pb.go
+  bundle/bundlev1/bundlev1client/grpc.go
+  bundle/bundlev1/bundlev1server/doc.go
+  pkg/api/mocks/DagRunsClient.go
+  pkg/edgeapi/client.go
+  NOTICE
+  pkg/api/init.go
+  pkg/api/mocks/ClientInterface.go
+  example/bundle/main_test.go
+  pkg/logging/tee.go
+  example/bundle/Justfile
+  pkg/api/overlay.yml
+  bundle/bundlev1/registry_test.go
+  pkg/api/mocks/AssetEventsClient.go
+  pkg/logging/stdbridge.go
+  edge/commands/run.go
+  pkg/logging/server/server_test.go
+  sdk/sdk.go
+  pkg/api/client.gen.go
+  pkg/worker/init.go
+  pkg/api/mocks/XcomsClient.go
+  pkg/api/mocks/TaskReschedulesClient.go
+Check if all hooks apply to the repository................................................................Passed
+Add license for all Go files..............................................................................Passed
+Run go mod tidy...........................................................................................Passed
+Consistent import ordering for Go files...................................................................Passed
+Format go code............................................................................................Passed
+error: Failed to run hook `go-mockery`
+  caused by: Run command `run container` failed
+  caused by: No such file or directory (os error 2)
