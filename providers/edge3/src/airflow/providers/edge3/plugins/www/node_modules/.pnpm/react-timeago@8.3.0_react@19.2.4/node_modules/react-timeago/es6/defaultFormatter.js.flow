@@ -1,0 +1,17 @@
+// @flow
+
+import type { Formatter } from './types'
+
+declare const defaultFormatter: Formatter
+
+declare export default typeof defaultFormatter
+
+export type IntlFormatterOptions = $ReadOnly<{
+  locale?: void | string,
+  localeMatcher?: 'lookup' | 'best fit',
+  numberingSystem?: Intl$NumberingSystem,
+  style?: 'long' | 'short' | 'narrow',
+  numeric?: 'always' | 'auto',
+}>
+
+declare export const makeIntlFormatter: (IntlFormatterOptions) => Formatter

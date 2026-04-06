@@ -1,0 +1,78 @@
+{
+  "name": "@7nohe/openapi-react-query-codegen",
+  "version": "2.0.0",
+  "description": "OpenAPI React Query Codegen",
+  "bin": {
+    "openapi-rq": "dist/cli.mjs"
+  },
+  "private": false,
+  "type": "module",
+  "workspaces": [
+    "examples/*"
+  ],
+  "exports": [
+    {
+      "import": "./dist/generate.mjs",
+      "require": "./dist/generate.mjs",
+      "types": "./dist/generate.d.mts"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/7nohe/openapi-react-query-codegen.git"
+  },
+  "homepage": "https://github.com/7nohe/openapi-react-query-codegen",
+  "bugs": "https://github.com/7nohe/openapi-react-query-codegen/issues",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "codegen",
+    "react-query",
+    "react",
+    "openapi",
+    "swagger",
+    "typescript",
+    "openapi-typescript-codegen",
+    "@hey-api/openapi-ts"
+  ],
+  "license": "MIT",
+  "author": "Daiki Urata (@7nohe)",
+  "dependencies": {
+    "@hey-api/client-fetch": "0.4.0",
+    "@hey-api/openapi-ts": "0.53.8",
+    "cross-spawn": "^7.0.3"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.3",
+    "@types/cross-spawn": "^6.0.6",
+    "@types/node": "^22.7.4",
+    "@vitest/coverage-v8": "^1.5.0",
+    "commander": "^12.0.0",
+    "lefthook": "^1.6.10",
+    "rimraf": "^5.0.5",
+    "ts-morph": "^23.0.0",
+    "typescript": "^5.5.4",
+    "vitest": "^1.5.0"
+  },
+  "peerDependencies": {
+    "commander": "12.x",
+    "ts-morph": "23.x",
+    "typescript": "5.x"
+  },
+  "engines": {
+    "node": ">=14",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc -p tsconfig.json",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "preview:react": "npm run build && npm -C examples/react-app run generate:api",
+    "preview:nextjs": "npm run build && npm -C examples/nextjs-app run generate:api",
+    "preview:tanstack-router": "npm run build && npm -C examples/tanstack-router-app run generate:api",
+    "release": "npx git-ensure -a && npx bumpp --commit --tag --push",
+    "test": "vitest --coverage.enabled true",
+    "snapshot": "vitest --update"
+  }
+}

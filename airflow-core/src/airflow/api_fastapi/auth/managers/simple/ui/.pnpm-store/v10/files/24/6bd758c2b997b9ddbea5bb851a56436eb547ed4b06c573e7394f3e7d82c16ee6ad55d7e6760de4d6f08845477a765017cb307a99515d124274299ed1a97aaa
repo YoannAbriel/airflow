@@ -1,0 +1,14 @@
+export const defaultOutputPath = "openapi";
+export const queriesOutputPath = "queries";
+export const requestsOutputPath = "requests";
+export const serviceFileName = "sdk.gen";
+export const modelsFileName = "types.gen";
+export const OpenApiRqFiles = {
+    queries: "queries",
+    infiniteQueries: "infiniteQueries",
+    common: "common",
+    suspense: "suspense",
+    index: "index",
+    prefetch: "prefetch",
+    ensureQueryData: "ensureQueryData",
+};

@@ -1,0 +1,23 @@
+// src/navigation-menu.props.ts
+import { createProps } from "@zag-js/types";
+import { createSplitProps } from "@zag-js/utils";
+var props = createProps()([
+  "id",
+  "dir",
+  "getRootNode",
+  "value",
+  "defaultValue",
+  "onValueChange",
+  "openDelay",
+  "closeDelay",
+  "orientation",
+  "ids",
+  "disableClickTrigger",
+  "disableHoverTrigger",
+  "disablePointerLeaveClose"
+]);
+var splitProps = createSplitProps(props);
+export {
+  props,
+  splitProps
+};

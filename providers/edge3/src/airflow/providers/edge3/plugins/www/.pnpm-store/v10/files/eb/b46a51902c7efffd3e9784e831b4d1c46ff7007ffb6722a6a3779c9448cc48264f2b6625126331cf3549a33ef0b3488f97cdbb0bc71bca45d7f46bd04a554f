@@ -1,0 +1,9 @@
+/* @flow */
+import type { L10nsStrings } from '../formatters/buildFormatter'
+
+/**
+ * Dhivehi time in Thaana for timeago.js
+ **/
+declare const strings: L10nsStrings
+
+declare export default typeof strings

@@ -1,0 +1,7 @@
+/* @flow */
+import type { L10nsStrings } from '../formatters/buildFormatter'
+
+// Dutch
+declare const strings: L10nsStrings
+
+declare export default typeof strings

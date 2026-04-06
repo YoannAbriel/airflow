@@ -1,0 +1,8 @@
+// src/splitter.anatomy.ts
+import { createAnatomy } from "@zag-js/anatomy";
+var anatomy = createAnatomy("splitter").parts("root", "panel", "resizeTrigger", "resizeTriggerIndicator");
+var parts = anatomy.build();
+export {
+  anatomy,
+  parts
+};

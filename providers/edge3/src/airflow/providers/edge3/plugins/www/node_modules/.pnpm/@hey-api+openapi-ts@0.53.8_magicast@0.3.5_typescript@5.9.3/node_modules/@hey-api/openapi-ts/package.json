@@ -1,0 +1,114 @@
+{
+  "name": "@hey-api/openapi-ts",
+  "version": "0.53.8",
+  "description": "Turn your OpenAPI specification into a beautiful TypeScript client",
+  "homepage": "https://heyapi.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hey-api/openapi-ts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hey-api/openapi-ts/issues"
+  },
+  "license": "MIT",
+  "keywords": [
+    "angular",
+    "axios",
+    "codegen",
+    "fetch",
+    "generator",
+    "http",
+    "javascript",
+    "json",
+    "node",
+    "openapi",
+    "rest",
+    "swagger",
+    "typescript",
+    "xhr",
+    "yaml"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "openapi-ts": "bin/index.cjs"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "LICENSE.md"
+  ],
+  "engines": {
+    "node": "^18.0.0 || >=20.0.0"
+  },
+  "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "11.7.0",
+    "c12": "2.0.1",
+    "commander": "12.1.0",
+    "handlebars": "4.7.8"
+  },
+  "peerDependencies": {
+    "typescript": "^5.x"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "17.3.7",
+    "@angular/animations": "17.3.9",
+    "@angular/cli": "17.3.7",
+    "@angular/common": "17.3.9",
+    "@angular/compiler": "17.3.9",
+    "@angular/compiler-cli": "17.3.9",
+    "@angular/core": "17.3.9",
+    "@angular/forms": "17.3.9",
+    "@angular/platform-browser": "17.3.9",
+    "@angular/platform-browser-dynamic": "17.3.9",
+    "@angular/router": "17.3.9",
+    "@tanstack/react-query": "5.56.2",
+    "@tanstack/solid-query": "5.51.21",
+    "@tanstack/svelte-query": "5.56.2",
+    "@tanstack/vue-query": "5.56.2",
+    "@types/cross-spawn": "6.0.6",
+    "@types/express": "4.17.21",
+    "axios": "1.7.7",
+    "cross-spawn": "7.0.3",
+    "eslint": "9.6.0",
+    "express": "4.21.0",
+    "glob": "10.4.3",
+    "node-fetch": "3.3.2",
+    "prettier": "3.3.2",
+    "puppeteer": "22.12.1",
+    "rxjs": "7.8.1",
+    "ts-node": "10.9.2",
+    "tslib": "2.6.3",
+    "typescript": "5.5.3",
+    "@hey-api/client-axios": "0.2.7",
+    "@hey-api/client-fetch": "0.4.0"
+  },
+  "scripts": {
+    "build": "tsup && pnpm check-exports",
+    "check-exports": "attw --pack .",
+    "dev": "tsup --watch",
+    "handlebars": "node src/legacy/handlebars/handlebars.cjs",
+    "test:coverage": "vitest run --config vitest.config.unit.ts --coverage",
+    "test:e2e": "vitest run --config vitest.config.e2e.ts",
+    "test:sample": "node test/sample.cjs",
+    "test:update": "vitest watch --config vitest.config.unit.ts --update",
+    "test:watch": "vitest watch --config vitest.config.unit.ts",
+    "test": "vitest run --config vitest.config.unit.ts",
+    "typecheck": "tsc --noEmit"
+  }
+}

@@ -1,0 +1,40 @@
+import type { Formatter } from '../types'
+
+type StringOrFn = string | ((value: number, millisDelta: number) => string)
+type NumberArray = [
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+  string,
+]
+
+export type L10nsStrings = {
+  prefixAgo?: ?StringOrFn,
+  prefixFromNow?: ?StringOrFn,
+  suffixAgo?: ?StringOrFn,
+  suffixFromNow?: ?StringOrFn,
+  second?: ?StringOrFn,
+  seconds?: ?StringOrFn,
+  minute?: ?StringOrFn,
+  minutes?: ?StringOrFn,
+  hour?: ?StringOrFn,
+  hours?: ?StringOrFn,
+  day?: ?StringOrFn,
+  days?: ?StringOrFn,
+  week?: ?StringOrFn,
+  weeks?: ?StringOrFn,
+  month?: ?StringOrFn,
+  months?: ?StringOrFn,
+  year?: ?StringOrFn,
+  years?: ?StringOrFn,
+  wordSeparator?: ?string,
+  numbers?: ?NumberArray,
+}
+
+declare export default function buildFormatter(strings: L10nsStrings): Formatter

@@ -1,0 +1,21 @@
+{
+  "name": "sqlparser-rs-wasm",
+  "type": "module",
+  "description": "WebAssembly bindings for sqlparser SQL parser",
+  "version": "0.61.1",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/guanmingchiu/sqlparser-ts"
+  },
+  "files": [
+    "sqlparser_rs_wasm_bg.wasm",
+    "sqlparser_rs_wasm.js",
+    "sqlparser_rs_wasm.d.ts"
+  ],
+  "main": "sqlparser_rs_wasm.js",
+  "types": "sqlparser_rs_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
