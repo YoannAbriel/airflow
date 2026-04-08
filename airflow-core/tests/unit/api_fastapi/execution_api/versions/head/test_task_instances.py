@@ -2156,7 +2156,6 @@ class TestTIPutRTIF:
         assert response.status_code == 404
         assert response.json()["detail"] == "Not Found"
 
-
     def test_ti_put_rtif_concurrent_write(self, client, session, create_task_instance):
         """Test that concurrent RTIF writes don't cause 409 errors.
 
