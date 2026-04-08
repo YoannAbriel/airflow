@@ -40,6 +40,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.sql import select
 from structlog.contextvars import bind_contextvars
 
+from airflow._shared.observability.metrics.dual_stats_manager import DualStatsManager
 from airflow._shared.observability.traces import override_ids
 from airflow._shared.timezones import timezone
 from airflow.api_fastapi.common.dagbag import DagBagDep, get_latest_version_of_dag
@@ -239,8 +240,6 @@ def ti_run(
         # Emit queued_duration metric (time spent in QUEUED state before RUNNING).
         # Only on the first attempt (no end_date yet) and when queued_dttm is set.
         if not ti.end_date and ti.queued_dttm:
-            from airflow._shared.observability.metrics.dual_stats_manager import DualStatsManager
-
             queued_duration = timezone.utcnow() - ti.queued_dttm
             DualStatsManager.timing(
                 "task.queued_duration",
