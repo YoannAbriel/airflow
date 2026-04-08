@@ -177,7 +177,12 @@ class TestClient:
 
     def test_server_response_error_str_includes_detail(self):
         """Test that ServerResponseError string representation includes error details."""
-        responses = [httpx.Response(409, json={"detail": {"reason": "invalid_state", "message": "TI was not in the running state"}})]
+        responses = [
+            httpx.Response(
+                409,
+                json={"detail": {"reason": "invalid_state", "message": "TI was not in the running state"}},
+            )
+        ]
         client = make_client_w_responses(responses)
 
         with pytest.raises(ServerResponseError) as exc_info:
