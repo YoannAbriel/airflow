@@ -170,6 +170,7 @@ config_list: list[_TableConfig] = [
     _TableConfig(
         table_name="dag_version",
         recency_column_name="created_at",
+        extra_columns=["id"],
         dependent_tables=["task_instance", "dag_run"],
         dag_id_column_name="dag_id",
         keep_last=True,
