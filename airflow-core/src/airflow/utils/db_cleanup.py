@@ -387,11 +387,12 @@ def _build_query(
     if fk_check_columns:
         for child_table_name, child_fk_col, parent_pk_col in fk_check_columns:
             child_table = table(child_table_name, column(child_fk_col))
+            parent_pk = getattr(base_table, parent_pk_col)
             query = query.where(
                 ~exists(
                     select(literal(1))
                     .select_from(child_table)
-                    .where(child_table.c[child_fk_col] == base_table.c[parent_pk_col])
+                    .where(child_table.c[child_fk_col] == parent_pk)
                 )
             )
 
