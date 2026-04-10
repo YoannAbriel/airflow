@@ -24,10 +24,14 @@ from enum import Enum
 from typing import Generic, TypeVar
 
 from fastapi import HTTPException, Request, status
+from fastapi.exceptions import ResponseValidationError
+from fastapi.responses import JSONResponse
+from pydantic_core import PydanticSerializationError
 from sqlalchemy.exc import IntegrityError
 
 from airflow.configuration import conf
 from airflow.exceptions import DeserializationError
+from airflow.models.connection import ConnectionFieldDecryptionError
 from airflow.utils.strings import get_random_string
 
 T = TypeVar("T", bound=Exception)
@@ -122,4 +126,57 @@ class DagErrorHandler(BaseErrorHandler[DeserializationError]):
         )
 
 
-ERROR_HANDLERS: list[BaseErrorHandler] = [_UniqueConstraintErrorHandler(), DagErrorHandler()]
+def _connection_decryption_error_response(detail: str) -> JSONResponse:
+    return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"detail": detail})
+
+
+class ConnectionFieldDecryptionErrorHandler(BaseErrorHandler[ConnectionFieldDecryptionError]):
+    """Handle undecryptable connection fields in API responses."""
+
+    def __init__(self):
+        super().__init__(ConnectionFieldDecryptionError)
+
+    def exception_handler(self, request: Request, exc: ConnectionFieldDecryptionError):
+        """Handle connection field decryption errors."""
+        return _connection_decryption_error_response(str(exc))
+
+
+class ResponseValidationErrorHandler(BaseErrorHandler[ResponseValidationError]):
+    """Handle response validation errors caused by undecryptable connection fields."""
+
+    def __init__(self):
+        super().__init__(ResponseValidationError)
+
+    def exception_handler(self, request: Request, exc: ResponseValidationError):
+        """Handle response validation errors."""
+        if "/connections" in request.url.path:
+            return _connection_decryption_error_response(
+                "Failed to serialize connection because an encrypted field could not be decrypted. "
+                "This may happen after migrating with a different Fernet key."
+            )
+        raise exc
+
+
+class PydanticSerializationErrorHandler(BaseErrorHandler[PydanticSerializationError]):
+    """Handle serialization errors caused by undecryptable connection fields."""
+
+    def __init__(self):
+        super().__init__(PydanticSerializationError)
+
+    def exception_handler(self, request: Request, exc: PydanticSerializationError):
+        """Handle serialization errors."""
+        if "/connections" in request.url.path and "ConnectionFieldDecryptionError" in str(exc):
+            return _connection_decryption_error_response(
+                "Failed to serialize connection because an encrypted field could not be decrypted. "
+                "This may happen after migrating with a different Fernet key."
+            )
+        raise exc
+
+
+ERROR_HANDLERS: list[BaseErrorHandler] = [
+    _UniqueConstraintErrorHandler(),
+    DagErrorHandler(),
+    ConnectionFieldDecryptionErrorHandler(),
+    ResponseValidationErrorHandler(),
+    PydanticSerializationErrorHandler(),
+]

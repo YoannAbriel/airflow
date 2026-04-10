@@ -198,8 +198,7 @@ class TestGetConnection(TestConnectionEndpoint):
         assert body["extra"] == '{"key": "value"}'
 
     def test_get_connection_with_undecryptable_password(self, test_client, session):
-        """Connection with an undecryptable password (e.g. migrated with a different Fernet key)
-        should return 200 with password=None instead of a 500 serialization error."""
+        """Connection with an undecryptable password should return a clear 500 error."""
         conn = Connection(conn_id="bad_fernet_conn", conn_type="generic")
         session.add(conn)
         session.flush()
@@ -214,13 +213,11 @@ class TestGetConnection(TestConnectionEndpoint):
         session.commit()
 
         response = test_client.get("/connections/bad_fernet_conn")
-        assert response.status_code == 200
-        body = response.json()
-        assert body["connection_id"] == "bad_fernet_conn"
-        assert body["password"] is None
+        assert response.status_code == 500
+        assert "different Fernet key" in response.json()["detail"]
 
     def test_get_connection_with_undecryptable_extra(self, test_client, session):
-        """Connection with undecryptable extra should return 200 with extra=None."""
+        """Connection with undecryptable extra should return a clear 500 error."""
         conn = Connection(conn_id="bad_extra_conn", conn_type="generic")
         session.add(conn)
         session.flush()
@@ -233,13 +230,11 @@ class TestGetConnection(TestConnectionEndpoint):
         session.commit()
 
         response = test_client.get("/connections/bad_extra_conn")
-        assert response.status_code == 200
-        body = response.json()
-        assert body["connection_id"] == "bad_extra_conn"
-        assert body["extra"] is None
+        assert response.status_code == 500
+        assert "different Fernet key" in response.json()["detail"]
 
     def test_get_connections_with_undecryptable_fields(self, test_client, session):
-        """Listing connections should not 500 when some have undecryptable password/extra."""
+        """Listing connections should return a clear 500 error for undecryptable fields."""
         conn = Connection(conn_id="bad_conn", conn_type="generic")
         session.add(conn)
         session.flush()
@@ -257,12 +252,8 @@ class TestGetConnection(TestConnectionEndpoint):
         session.commit()
 
         response = test_client.get("/connections")
-        assert response.status_code == 200
-        body = response.json()
-        assert body["total_entries"] == 1
-        assert body["connections"][0]["connection_id"] == "bad_conn"
-        assert body["connections"][0]["password"] is None
-        assert body["connections"][0]["extra"] is None
+        assert response.status_code == 500
+        assert "different Fernet key" in response.json()["detail"]
 
 
 class TestGetConnections(TestConnectionEndpoint):

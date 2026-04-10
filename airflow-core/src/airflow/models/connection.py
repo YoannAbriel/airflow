@@ -40,6 +40,20 @@ from airflow.utils.log.logging_mixin import LoggingMixin
 from airflow.utils.session import NEW_SESSION, provide_session
 
 log = logging.getLogger(__name__)
+
+
+class ConnectionFieldDecryptionError(AirflowException):
+    """Raised when an encrypted connection field cannot be decrypted."""
+
+    def __init__(self, conn_id: str | None, field_name: str):
+        self.conn_id = conn_id
+        self.field_name = field_name
+        super().__init__(
+            f"Failed to decrypt {field_name} for connection {conn_id!r}. "
+            "This may happen after migrating with a different Fernet key."
+        )
+
+
 # sanitize the `conn_id` pattern by allowing alphanumeric characters plus
 # the symbols #,!,-,_,.,:,\,/ and () requiring at least one match.
 #
@@ -356,6 +370,8 @@ class Connection(Base, LoggingMixin):
     def get_password(self) -> str | None:
         """Return encrypted password."""
         if self._password and self.is_encrypted:
+            from cryptography.fernet import InvalidToken as InvalidFernetToken
+
             fernet = get_fernet()
             if not fernet.is_encrypted:
                 raise AirflowException(
@@ -364,13 +380,8 @@ class Connection(Base, LoggingMixin):
                 )
             try:
                 return fernet.decrypt(bytes(self._password, "utf-8")).decode()
-            except Exception:
-                log.warning(
-                    "Failed to decrypt password for connection %s. "
-                    "This may happen after migrating with a different Fernet key.",
-                    self.conn_id,
-                )
-                return None
+            except InvalidFernetToken as e:
+                raise ConnectionFieldDecryptionError(self.conn_id, "password") from e
         return self._password
 
     def set_password(self, value: str | None):
@@ -389,6 +400,8 @@ class Connection(Base, LoggingMixin):
         """Return encrypted extra-data."""
         extra_val: str | None
         if self._extra and self.is_extra_encrypted:
+            from cryptography.fernet import InvalidToken as InvalidFernetToken
+
             fernet = get_fernet()
             if not fernet.is_encrypted:
                 raise AirflowException(
@@ -397,13 +410,8 @@ class Connection(Base, LoggingMixin):
                 )
             try:
                 extra_val = fernet.decrypt(bytes(self._extra, "utf-8")).decode()
-            except Exception:
-                log.warning(
-                    "Failed to decrypt `extra` for connection %s. "
-                    "This may happen after migrating with a different Fernet key.",
-                    self.conn_id,
-                )
-                return None
+            except InvalidFernetToken as e:
+                raise ConnectionFieldDecryptionError(self.conn_id, "extra") from e
         else:
             extra_val = self._extra
         if extra_val:
