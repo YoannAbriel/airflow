@@ -30,8 +30,7 @@ from pydantic_core import PydanticSerializationError
 from sqlalchemy.exc import IntegrityError
 
 from airflow.configuration import conf
-from airflow.exceptions import DeserializationError
-from airflow.models.connection import ConnectionFieldDecryptionError
+from airflow.exceptions import ConnectionFieldDecryptionError, DeserializationError
 from airflow.utils.strings import get_random_string
 
 T = TypeVar("T", bound=Exception)
@@ -130,6 +129,15 @@ def _connection_decryption_error_response(detail: str) -> JSONResponse:
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"detail": detail})
 
 
+def _has_connection_decryption_error(exc: BaseException) -> bool:
+    current: BaseException | None = exc
+    while current is not None:
+        if isinstance(current, ConnectionFieldDecryptionError):
+            return True
+        current = current.__cause__ or current.__context__
+    return False
+
+
 class ConnectionFieldDecryptionErrorHandler(BaseErrorHandler[ConnectionFieldDecryptionError]):
     """Handle undecryptable connection fields in API responses."""
 
@@ -165,7 +173,9 @@ class PydanticSerializationErrorHandler(BaseErrorHandler[PydanticSerializationEr
 
     def exception_handler(self, request: Request, exc: PydanticSerializationError):
         """Handle serialization errors."""
-        if "/connections" in request.url.path and "ConnectionFieldDecryptionError" in str(exc):
+        if "/connections" in request.url.path and (
+            _has_connection_decryption_error(exc) or "ConnectionFieldDecryptionError" in str(exc)
+        ):
             return _connection_decryption_error_response(
                 "Failed to serialize connection because an encrypted field could not be decrypted. "
                 "This may happen after migrating with a different Fernet key."

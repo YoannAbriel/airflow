@@ -32,7 +32,7 @@ from sqlalchemy.orm import Mapped, declared_attr, mapped_column, reconstructor, 
 
 from airflow._shared.module_loading import import_string
 from airflow._shared.secrets_masker import mask_secret
-from airflow.exceptions import AirflowException, AirflowNotFoundException
+from airflow.exceptions import AirflowException, AirflowNotFoundException, ConnectionFieldDecryptionError
 from airflow.models.base import ID_LEN, Base
 from airflow.models.crypto import get_fernet
 from airflow.utils.helpers import prune_dict
@@ -40,19 +40,6 @@ from airflow.utils.log.logging_mixin import LoggingMixin
 from airflow.utils.session import NEW_SESSION, provide_session
 
 log = logging.getLogger(__name__)
-
-
-class ConnectionFieldDecryptionError(AirflowException):
-    """Raised when an encrypted connection field cannot be decrypted."""
-
-    def __init__(self, conn_id: str | None, field_name: str):
-        self.conn_id = conn_id
-        self.field_name = field_name
-        super().__init__(
-            f"Failed to decrypt {field_name} for connection {conn_id!r}. "
-            "This may happen after migrating with a different Fernet key."
-        )
-
 
 # sanitize the `conn_id` pattern by allowing alphanumeric characters plus
 # the symbols #,!,-,_,.,:,\,/ and () requiring at least one match.

@@ -160,6 +160,18 @@ class SerializationError(AirflowException):
     """A problem occurred when trying to serialize something."""
 
 
+class ConnectionFieldDecryptionError(AirflowException):
+    """Raised when an encrypted connection field cannot be decrypted."""
+
+    def __init__(self, conn_id: str | None, field_name: str):
+        self.conn_id = conn_id
+        self.field_name = field_name
+        super().__init__(
+            f"Failed to decrypt {field_name} for connection {conn_id!r}. "
+            "This may happen after migrating with a different Fernet key."
+        )
+
+
 class TaskInstanceNotFound(AirflowNotFoundException):
     """Raise when a task instance is not available in the system."""
 
