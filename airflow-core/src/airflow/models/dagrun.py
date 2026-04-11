@@ -1537,12 +1537,11 @@ class DagRun(Base, LoggingMixin):
     ) -> tuple[bool, bool]:
         # Do not pass the cached finished_tis to DepContext. The list was built
         # at the start of the scheduling loop and may be stale when a concurrent
-        # API call (e.g. "mark task as success") clears downstream task states
-        # between the snapshot and this evaluation.  Leaving finished_tis=None
-        # makes DepContext.ensure_finished_tis() re-query the database so the
+        # API call clears downstream task states between the snapshot and this
+        # evaluation. Leaving finished_tis=None makes
+        # DepContext.ensure_finished_tis() re-query the database so the
         # trigger-rule evaluation sees the latest committed states instead of
         # incorrectly marking tasks as upstream_failed based on outdated data.
-        # See: https://github.com/apache/airflow/issues/63697
         dep_context = DepContext(
             flag_upstream_failed=True,
             ignore_in_retry_period=True,
