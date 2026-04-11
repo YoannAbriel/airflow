@@ -963,6 +963,9 @@ filterwarnings = [
     # https://github.com/dpgaspar/Flask-AppBuilder/pull/1903
     "ignore::DeprecationWarning:apispec.utils",
 ]
+markers = [
+    "skip_if_database_isolation_mode: skip tests that require DB state not supported in isolation mode",
+]
 # We cannot add warnings from the airflow package into `filterwarnings`,
 # because it invokes import airflow before we set up test environment which breaks the tests.
 # Instead of that, we use a separate parameter and dynamically add it into `filterwarnings` marker.
