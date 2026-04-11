@@ -4953,7 +4953,7 @@ class TestSchedulerJob:
         ).one_or_none()
         assert adrq_2 is not None
 
-        assert created_run.creating_job_id == scheduler_job.id
+        assert dr.creating_job_id == scheduler_job.id
 
     @pytest.mark.need_serialized_dag
     @conf_vars({("scheduler", "use_job_schedule"): "False"})
