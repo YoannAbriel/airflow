@@ -129,13 +129,21 @@ def _connection_decryption_error_response(detail: str) -> JSONResponse:
     return JSONResponse(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, content={"detail": detail})
 
 
-def _has_connection_decryption_error(exc: BaseException) -> bool:
+def _iter_exception_chain(exc: BaseException):
     current: BaseException | None = exc
     while current is not None:
-        if isinstance(current, ConnectionFieldDecryptionError):
-            return True
+        yield current
         current = current.__cause__ or current.__context__
-    return False
+
+
+def _has_connection_decryption_error(exc: BaseException) -> bool:
+    return any(isinstance(error, ConnectionFieldDecryptionError) for error in _iter_exception_chain(exc))
+
+
+def _mentions_connection_decryption_error(exc: BaseException) -> bool:
+    # Pydantic serialization errors may flatten the original exception into the message
+    # without preserving it in __cause__ / __context__.
+    return "ConnectionFieldDecryptionError" in str(exc)
 
 
 class ConnectionFieldDecryptionErrorHandler(BaseErrorHandler[ConnectionFieldDecryptionError]):
@@ -174,7 +182,7 @@ class PydanticSerializationErrorHandler(BaseErrorHandler[PydanticSerializationEr
     def exception_handler(self, request: Request, exc: PydanticSerializationError):
         """Handle serialization errors."""
         if "/connections" in request.url.path and (
-            _has_connection_decryption_error(exc) or "ConnectionFieldDecryptionError" in str(exc)
+            _has_connection_decryption_error(exc) or _mentions_connection_decryption_error(exc)
         ):
             return _connection_decryption_error_response(
                 "Failed to serialize connection because an encrypted field could not be decrypted. "
