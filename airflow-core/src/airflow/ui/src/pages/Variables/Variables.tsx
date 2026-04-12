@@ -93,7 +93,7 @@ const getColumns = ({
       cell: ({ row }) => (
         <Box minWidth={0} overflowWrap="anywhere" wordBreak="break-word">
           <TrimText
-            charLimit={open ? row.original.value.length : undefined}
+            charLimit={open ? row.original.value?.length : undefined}
             showTooltip
             text={row.original.value}
           />

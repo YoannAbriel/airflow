@@ -32,7 +32,11 @@ type Props = {
   readonly variable: VariableResponse;
 };
 
-const formatValue = (value: string): string => {
+const formatValue = (value: string | null): string => {
+  if (value === null) {
+    return "";
+  }
+
   try {
     const parsed: unknown = JSON.parse(value);
 

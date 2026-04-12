@@ -13571,7 +13571,9 @@ components:
           type: string
           title: Key
         value:
-          type: string
+          anyOf:
+          - type: string
+          - type: 'null'
           title: Value
         description:
           anyOf:
